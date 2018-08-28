@@ -8,22 +8,40 @@
 				
 				let table_id = $(selector).attr('id').split('_').pop();
 
-				let thead = $(selector).find('thead').html();
-
 				setInterval( function() {
 
 					let data = { 'action': 'update_ninja_ajax_tables', 'table_id': table_id };
 
 					$.post( ninja_ajax_tables.ajax_url, data, function( response ) {
-						
-						$(selector).find( 'tbody' ).html( response );
 
-						$(selector).footable();
+						let result = JSON.parse( response );
 
-						if ( $(selector).find( 'thead' ).length )
-							$(selector).find( 'thead' ).html( thead );
-						else
-							$(selector).prepend( '<thead>' + thead + '</thead>' );
+						$(selector).find('thead').html( result.thead );
+
+						$(selector).find('tbody').html( result.tbody );
+
+						$(selector).footable({
+							"columns": result.columns,
+							"cascade": true,
+							"expandFirst": false,
+							"expandAll": false,
+							"empty": "No Result Found",
+							"sorting": { "enabled": true },
+							"filtering": { 
+								"enabled": true, 
+								"delay": 1, 
+								"dropdownTitle": "Search in",
+								"placeholder":"Search",
+								"connectors":false,
+								"ignoreCase":true
+							},
+							"paging": {
+								"enabled": true,
+								"position": "right",
+								"size": "20",
+								"container": "#footable_parent_" + table_id +" .paging-ui-container" 
+							}
+						});
 
 					} );
 

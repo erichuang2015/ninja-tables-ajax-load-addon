@@ -26,15 +26,46 @@ function update_ninja_ajax_tables() {
 
 	$xml = simplexml_load_string( do_shortcode( '[ninja_tables id="' . $table_id . '"]' ) );
 
-	$table_content = '';
+	$opt_col_arr = array();
 
-	foreach ( $xml->table->tbody->tr as $tr_tag ) {
+	foreach ( $xml->table->thead->tr->th as $th_tag ) {
 
-		$table_content .= $tr_tag->asXML();
+		$opt_col = array(
+			'name'	=> str_replace( '-', '_', sanitize_title( $th_tag[0]->__toString() ) ),
+			'title'	=> $th_tag[0]->__toString(),
+			'type'	=> 'text',
+			'visible'		=> true,
+			'sortable'	=> true,
+			'classes'		=> $th_tag[0]->attributes()['class']->__toString(),
+			'filterable'	=> true,
+			'breakpoints'	=> ''
+		);
+
+		array_push( $opt_col_arr, $opt_col );
 
 	}
 
-	echo $table_content;
+	$thead_content = '';
+	$tbody_content = '';
+
+	foreach ( $xml->table->thead->tr as $tr_tag ) {
+
+		$thead_content .= $tr_tag->asXML();
+
+	}
+
+
+	foreach ( $xml->table->tbody->tr as $tr_tag ) {
+
+		$tbody_content .= $tr_tag->asXML();
+
+	}
+
+	echo json_encode( array( 
+		'thead' => $thead_content, 
+		'tbody' => $tbody_content,
+		'columns'	=> $opt_col_arr
+	) );
 
 	die;
 
